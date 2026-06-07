@@ -98,23 +98,27 @@ document.addEventListener('DOMContentLoaded', function () {
     var testForm = document.getElementById('testForm');
     if (testForm) {
         var tabSwitchTriggered = false;
+        var testReady = false;
 
         var tabSwitchField = document.getElementById('tabSwitched');
 
+        // Wait 3 seconds after page load before activating detection
+        // Prevents false triggers from page transition, notifications, etc.
+        setTimeout(function () {
+            testReady = true;
+        }, 3000);
+
         function autoSubmitTabSwitch() {
-            if (tabSwitchTriggered) return;
+            if (tabSwitchTriggered || !testReady) return;
             tabSwitchTriggered = true;
             tabSwitchField.value = '1';
             testForm.submit();
         }
 
+        // Only use visibilitychange (reliable tab switch detection)
+        // Removed window.blur - too aggressive (fires on notifications, address bar, etc.)
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) autoSubmitTabSwitch();
-        });
-
-        // Also detect window blur (covers alt-tab, clicking other windows)
-        window.addEventListener('blur', function () {
-            autoSubmitTabSwitch();
         });
 
         // Prevent right-click (discourages copying questions)
