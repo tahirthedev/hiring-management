@@ -28,17 +28,23 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $answers = [];
+    $isTabSwitch = isset($_POST['tab_switched']) && $_POST['tab_switched'] === '1';
+
     for ($i = 1; $i <= 5; $i++) {
         $answer = trim($_POST["answer_$i"] ?? '');
-        if (empty($answer)) {
-            $errors[] = "Question $i is required.";
-        } elseif (strlen($answer) < 20) {
-            $errors[] = "Question $i: Please provide a more detailed answer (minimum 20 characters).";
+        if (!$isTabSwitch) {
+            if (empty($answer)) {
+                $errors[] = "Question $i is required.";
+            } elseif (strlen($answer) < 20) {
+                $errors[] = "Question $i: Please provide a more detailed answer (minimum 20 characters).";
+            }
         }
-        $answers[$i] = $answer;
+        $answers[$i] = $answer ?: '(No answer - tab switch detected)';
     }
 
     if (empty($errors)) {
+        // If tab switch, force reject
+        $tabSwitchPenalty = $isTabSwitch;
         // Score all answers
         $scoreResults = scoreAnswers($answers);
         $totalScore = calculateTotalScore($scoreResults);
@@ -57,9 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
-        // Update applicant score and status
-        $stmtUpdate = $pdo->prepare("UPDATE applicants SET total_score = ?, status = ? WHERE id = ?");
-        $stmtUpdate->execute([$totalScore, $status, $applicantId]);
+        // Override status if tab switch detected
+        if ($tabSwitchPenalty) {
+            $status = 'Rejected';
+            $rejectionReason = 'Tab switch detected during screening test';
+            $stmtUpdate = $pdo->prepare("UPDATE applicants SET total_score = ?, status = ?, rejection_reason = ? WHERE id = ?");
+            $stmtUpdate->execute([$totalScore, $status, $rejectionReason, $applicantId]);
+        } else {
+            $stmtUpdate = $pdo->prepare("UPDATE applicants SET total_score = ?, status = ? WHERE id = ?");
+            $stmtUpdate->execute([$totalScore, $status, $applicantId]);
+        }
 
         // Send confirmation email
         sendConfirmationEmail($applicant['email'], $applicant['full_name']);
@@ -90,6 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i> Take your time. Your answers help us understand your WordPress expertise. Be specific and detailed.
                     </div>
+                    <div class="alert alert-danger fw-semibold">
+                        <i class="bi bi-exclamation-triangle-fill"></i> <strong>WARNING:</strong> Do NOT switch tabs or leave this page during the test. Tab switching will be detected and your test will be <strong>automatically submitted</strong> with whatever answers you have filled in so far.
+                    </div>
                 </div>
 
                 <?php if (!empty($errors)): ?>
@@ -103,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" id="testForm">
+                    <input type="hidden" name="tab_switched" id="tabSwitched" value="0">
                     <!-- Question 1 -->
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-primary text-white">

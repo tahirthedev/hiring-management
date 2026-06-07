@@ -124,7 +124,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="col-md-6">
                                     <label for="city" class="form-label">Current City <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="city" name="city" value="<?= sanitize($_POST['city'] ?? '') ?>" required>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="city" name="city" value="<?= sanitize($_POST['city'] ?? '') ?>" required>
+                                        <button type="button" class="btn btn-outline-primary" id="detectLocationBtn" title="Detect my location">
+                                            <i class="bi bi-geo-alt-fill"></i> <span class="d-none d-md-inline">Detect</span>
+                                        </button>
+                                    </div>
+                                    <div id="locationStatus" class="form-text"></div>
                                 </div>
                                 <div class="col-12">
                                     <label for="area" class="form-label">Area within City <span class="text-danger">*</span></label>
