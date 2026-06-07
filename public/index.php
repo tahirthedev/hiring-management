@@ -125,11 +125,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="col-md-6">
                                     <label for="city" class="form-label">Current City <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="city" name="city" value="<?= sanitize($_POST['city'] ?? '') ?>" required>
+                                        <input type="text" class="form-control" id="city" name="city" value="<?= sanitize($_POST['city'] ?? '') ?>" required readonly>
                                         <button type="button" class="btn btn-outline-primary" id="detectLocationBtn" title="Detect my location">
                                             <i class="bi bi-geo-alt-fill"></i> <span class="d-none d-md-inline">Detect</span>
                                         </button>
                                     </div>
+                                    <small class="form-text text-muted"><i class="bi bi-lock-fill"></i> City is auto-detected from your location and cannot be edited.</small>
                                     <div id="locationStatus" class="form-text"></div>
                                 </div>
                                 <div class="col-12">
