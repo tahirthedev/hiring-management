@@ -1,0 +1,3 @@
+uploads/cv/*.pdf
+.env
+.claude/

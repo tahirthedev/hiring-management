@@ -1,0 +1,9 @@
+# Only allow PDF files to be accessed
+<FilesMatch "\.(?!pdf$)">
+    Require all denied
+</FilesMatch>
+
+# Disable PHP execution in uploads
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
