@@ -14,7 +14,7 @@ function validateUrl(string $url): bool {
     return filter_var($url, FILTER_VALIDATE_URL) !== false;
 }
 
-function uploadCV(array $file): ?string {
+function uploadCV(array $file): ?array {
     $allowed = ['application/pdf'];
     $maxSize = 5 * 1024 * 1024; // 5MB
 
@@ -25,13 +25,12 @@ function uploadCV(array $file): ?string {
     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     if (strtolower($ext) !== 'pdf') return null;
 
-    $filename = uniqid('cv_') . '_' . time() . '.pdf';
-    $destination = UPLOAD_DIR . $filename;
+    $filename = basename($file['name']);
+    $data = file_get_contents($file['tmp_name']);
 
-    if (move_uploaded_file($file['tmp_name'], $destination)) {
-        return $filename;
-    }
-    return null;
+    if ($data === false) return null;
+
+    return ['filename' => $filename, 'data' => $data];
 }
 
 function getApplicantCount(PDO $pdo, ?string $status = null): int {

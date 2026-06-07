@@ -42,10 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Upload CV
     $cvFilename = null;
+    $cvData = null;
     if (isset($_FILES['cv']) && $_FILES['cv']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $cvFilename = uploadCV($_FILES['cv']);
-        if (!$cvFilename) {
+        $cvResult = uploadCV($_FILES['cv']);
+        if (!$cvResult) {
             $errors[] = 'CV must be a PDF file under 5MB.';
+        } else {
+            $cvFilename = $cvResult['filename'];
+            $cvData = $cvResult['data'];
         }
     }
 
@@ -54,17 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $rejectReason = getAutoRejectReason($city, $wpExperience);
 
         if ($rejectReason) {
-            // Save as rejected, no test needed
-            $stmt = $pdo->prepare("INSERT INTO applicants (full_name, phone, email, city, area, wp_experience, employment_status, expected_salary, portfolio_url, linkedin_url, cv_filename, status, rejection_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Rejected', ?)");
-            $stmt->execute([$fullName, $phone, $email, $city, $area, $wpExperience, $employmentStatus, $expectedSalary, $portfolioUrl, $linkedinUrl, $cvFilename, $rejectReason]);
+            $stmt = $pdo->prepare("INSERT INTO applicants (full_name, phone, email, city, area, wp_experience, employment_status, expected_salary, portfolio_url, linkedin_url, cv_filename, cv_data, status, rejection_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Rejected', ?)");
+            $stmt->execute([$fullName, $phone, $email, $city, $area, $wpExperience, $employmentStatus, $expectedSalary, $portfolioUrl, $linkedinUrl, $cvFilename, $cvData, $rejectReason]);
 
             sendConfirmationEmail($email, $fullName);
             header('Location: /thankyou.php');
             exit;
         } else {
-            // Save applicant and redirect to test
-            $stmt = $pdo->prepare("INSERT INTO applicants (full_name, phone, email, city, area, wp_experience, employment_status, expected_salary, portfolio_url, linkedin_url, cv_filename, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')");
-            $stmt->execute([$fullName, $phone, $email, $city, $area, $wpExperience, $employmentStatus, $expectedSalary, $portfolioUrl, $linkedinUrl, $cvFilename]);
+            $stmt = $pdo->prepare("INSERT INTO applicants (full_name, phone, email, city, area, wp_experience, employment_status, expected_salary, portfolio_url, linkedin_url, cv_filename, cv_data, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')");
+            $stmt->execute([$fullName, $phone, $email, $city, $area, $wpExperience, $employmentStatus, $expectedSalary, $portfolioUrl, $linkedinUrl, $cvFilename, $cvData]);
 
             $applicantId = $pdo->lastInsertId();
             $_SESSION['applicant_id'] = $applicantId;

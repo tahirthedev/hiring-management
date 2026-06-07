@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS applicants (
     portfolio_url VARCHAR(255) DEFAULT NULL,
     linkedin_url VARCHAR(255) DEFAULT NULL,
     cv_filename VARCHAR(255) DEFAULT NULL,
+    cv_data LONGBLOB DEFAULT NULL,
     total_score INT DEFAULT 0,
     status ENUM('Pending','Shortlisted','Manual Review','Rejected') DEFAULT 'Pending',
     rejection_reason VARCHAR(255) DEFAULT NULL,

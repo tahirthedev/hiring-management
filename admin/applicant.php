@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_status'])) {
                                 <span class="text-muted"><i class="bi bi-file-pdf"></i> CV</span>
                                 <span>
                                     <?php if ($applicant['cv_filename']): ?>
-                                        <a href="/uploads/cv/<?= sanitize($applicant['cv_filename']) ?>" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <a href="/admin/cv.php?id=<?= $id ?>" target="_blank" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-download"></i> Download
                                         </a>
                                     <?php else: ?>

@@ -51,6 +51,7 @@ try {
         portfolio_url VARCHAR(255) DEFAULT NULL,
         linkedin_url VARCHAR(255) DEFAULT NULL,
         cv_filename VARCHAR(255) DEFAULT NULL,
+        cv_data LONGBLOB DEFAULT NULL,
         total_score INT DEFAULT 0,
         status ENUM('Pending','Shortlisted','Manual Review','Rejected') DEFAULT 'Pending',
         rejection_reason VARCHAR(255) DEFAULT NULL,
@@ -73,6 +74,14 @@ try {
         UNIQUE KEY unique_answer (applicant_id, question_number)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "<p>&#10004; Table 'screening_answers' created.</p>";
+
+    // Migration: add cv_data column if missing
+    try {
+        $pdo->exec("ALTER TABLE applicants ADD COLUMN cv_data LONGBLOB DEFAULT NULL AFTER cv_filename");
+        echo "<p>&#10004; Added cv_data column.</p>";
+    } catch (PDOException $e) {
+        // Column already exists, ignore
+    }
 
     // Seed admin user
     $adminPassword = password_hash('admin123', PASSWORD_BCRYPT);
