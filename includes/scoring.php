@@ -206,7 +206,7 @@ function determineStatus(int $totalScore): string {
 }
 
 function getAutoRejectReason(string $city, int $experience): ?string {
-    if (strtolower(trim($city)) !== 'karachi') {
+    if (strpos(strtolower(trim($city)), 'karachi') === false) {
         return 'City is not Karachi';
     }
     if ($experience < 2) {
