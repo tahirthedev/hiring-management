@@ -1,10 +1,13 @@
 <?php
-// Railway provides MYSQL_* environment variables automatically
-define('DB_HOST', getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'wp_screening');
-define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
-define('DB_PORT', getenv('MYSQLPORT') ?: '3306');
+function _env(string $key, string $default = ''): string {
+    return getenv($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? $default));
+}
+
+define('DB_HOST', _env('MYSQLHOST', 'localhost'));
+define('DB_NAME', _env('MYSQLDATABASE', 'wp_screening'));
+define('DB_USER', _env('MYSQLUSER', 'root'));
+define('DB_PASS', _env('MYSQLPASSWORD'));
+define('DB_PORT', _env('MYSQLPORT', '3306'));
 
 // Auto-detect base URL
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';

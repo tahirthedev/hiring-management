@@ -4,11 +4,15 @@
  * Run this once to set up the database.
  */
 
-$host = getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost';
-$user = getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root';
-$pass = getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '';
-$dbName = getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'wp_screening';
-$port = getenv('MYSQLPORT') ?: '3306';
+function env(string $key, string $default = ''): string {
+    return getenv($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? $default));
+}
+
+$host = env('MYSQLHOST', 'localhost');
+$user = env('MYSQLUSER', 'root');
+$pass = env('MYSQLPASSWORD');
+$dbName = env('MYSQLDATABASE', 'wp_screening');
+$port = env('MYSQLPORT', '3306');
 
 echo "<h2>WordPress Screening System - Installer</h2>";
 
