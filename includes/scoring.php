@@ -205,15 +205,12 @@ function determineStatus(int $totalScore): string {
     return 'Rejected';
 }
 
-function getAutoRejectReason(string $city, int $experience, string $portfolioUrl): ?string {
+function getAutoRejectReason(string $city, int $experience): ?string {
     if (strtolower(trim($city)) !== 'karachi') {
         return 'City is not Karachi';
     }
     if ($experience < 2) {
         return 'Less than 2 years WordPress experience';
-    }
-    if (empty(trim($portfolioUrl))) {
-        return 'No portfolio URL provided';
     }
     return null;
 }

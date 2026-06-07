@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         // Check auto-rejection
-        $rejectReason = getAutoRejectReason($city, $wpExperience, $portfolioUrl);
+        $rejectReason = getAutoRejectReason($city, $wpExperience);
 
         if ($rejectReason) {
             // Save as rejected, no test needed
@@ -160,8 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <input type="number" class="form-control" id="expected_salary" name="expected_salary" min="0" value="<?= sanitize($_POST['expected_salary'] ?? '') ?>" placeholder="e.g., 80000" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="portfolio_url" class="form-label">Portfolio URL <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control" id="portfolio_url" name="portfolio_url" value="<?= sanitize($_POST['portfolio_url'] ?? '') ?>" placeholder="https://yourportfolio.com" required>
+                                    <label for="portfolio_url" class="form-label">Portfolio URL</label>
+                                    <input type="url" class="form-control" id="portfolio_url" name="portfolio_url" value="<?= sanitize($_POST['portfolio_url'] ?? '') ?>" placeholder="https://yourportfolio.com (optional)">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="linkedin_url" class="form-label">LinkedIn URL</label>
