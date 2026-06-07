@@ -65,12 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: /thankyou.php');
             exit;
         } else {
-            $stmt = $pdo->prepare("INSERT INTO applicants (full_name, phone, email, city, area, wp_experience, employment_status, expected_salary, portfolio_url, linkedin_url, cv_filename, cv_data, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')");
-            $stmt->execute([$fullName, $phone, $email, $city, $area, $wpExperience, $employmentStatus, $expectedSalary, $portfolioUrl, $linkedinUrl, $cvFilename, $cvData]);
+            $testToken = bin2hex(random_bytes(32));
+            $stmt = $pdo->prepare("INSERT INTO applicants (test_token, full_name, phone, email, city, area, wp_experience, employment_status, expected_salary, portfolio_url, linkedin_url, cv_filename, cv_data, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')");
+            $stmt->execute([$testToken, $fullName, $phone, $email, $city, $area, $wpExperience, $employmentStatus, $expectedSalary, $portfolioUrl, $linkedinUrl, $cvFilename, $cvData]);
 
-            $applicantId = $pdo->lastInsertId();
-            $_SESSION['applicant_id'] = $applicantId;
-            header('Location: /test.php');
+            header('Location: /test.php?token=' . $testToken);
             exit;
         }
     }

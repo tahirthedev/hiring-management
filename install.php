@@ -75,13 +75,19 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "<p>&#10004; Table 'screening_answers' created.</p>";
 
-    // Migration: add cv_data column if missing
-    try {
-        $pdo->exec("ALTER TABLE applicants ADD COLUMN cv_data LONGBLOB DEFAULT NULL AFTER cv_filename");
-        echo "<p>&#10004; Added cv_data column.</p>";
-    } catch (PDOException $e) {
-        // Column already exists, ignore
+    // Migrations: add columns if missing
+    $migrations = [
+        "ALTER TABLE applicants ADD COLUMN cv_data LONGBLOB DEFAULT NULL AFTER cv_filename",
+        "ALTER TABLE applicants ADD COLUMN test_token VARCHAR(64) DEFAULT NULL AFTER id",
+    ];
+    foreach ($migrations as $sql) {
+        try {
+            $pdo->exec($sql);
+        } catch (PDOException $e) {
+            // Column already exists, ignore
+        }
     }
+    echo "<p>&#10004; Migrations applied.</p>";
 
     // Seed admin user
     $adminPassword = password_hash('admin123', PASSWORD_BCRYPT);

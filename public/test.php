@@ -1,21 +1,24 @@
 <?php
-session_start();
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/scoring.php';
 
-// Must have applicant_id from form submission
-if (!isset($_SESSION['applicant_id'])) {
+// Token-based access (no session dependency)
+$token = $_GET['token'] ?? $_POST['token'] ?? '';
+if (empty($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
     header('Location: /');
     exit;
 }
 
-$applicantId = (int) $_SESSION['applicant_id'];
-$applicant = getApplicant($pdo, $applicantId);
+$stmt = $pdo->prepare("SELECT * FROM applicants WHERE test_token = ?");
+$stmt->execute([$token]);
+$applicant = $stmt->fetch();
 
 if (!$applicant || $applicant['status'] === 'Rejected') {
     header('Location: /');
     exit;
 }
+
+$applicantId = (int) $applicant['id'];
 
 // Check if already answered
 $existing = getAnswers($pdo, $applicantId);
@@ -74,6 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtUpdate->execute([$totalScore, $status, $applicantId]);
         }
 
+        // Clear token so test can't be retaken
+        $pdo->prepare("UPDATE applicants SET test_token = NULL WHERE id = ?")->execute([$applicantId]);
+
         // Send confirmation email
         sendConfirmationEmail($applicant['email'], $applicant['full_name']);
 
@@ -119,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" id="testForm">
+                    <input type="hidden" name="token" value="<?= sanitize($token) ?>">
                     <input type="hidden" name="tab_switched" id="tabSwitched" value="0">
                     <!-- Question 1 -->
                     <div class="card shadow-sm mb-4">

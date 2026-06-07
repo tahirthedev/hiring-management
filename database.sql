@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 -- Applicants table
 CREATE TABLE IF NOT EXISTS applicants (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    test_token VARCHAR(64) DEFAULT NULL,
     full_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
